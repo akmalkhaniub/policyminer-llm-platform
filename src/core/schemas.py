@@ -1,9 +1,11 @@
 """
 Layer 3 SDD: Strict Pydantic v2 Contracts for Commercial Insurance Mining,
-Unsloth QLoRA Fine-Tuning, Long-Context Attention, Multi-Backend RAG,
-LangSmith Agentic Orchestration, and Azure MLOps Monitoring.
+Unsloth QLoRA + DPO Fine-Tuning, Long-Context Attention, Multi-Page Table Stitching,
+Multi-Backend RAG, LangSmith Agentic Orchestration, Azure FinOps, and Free GPU Dispatching.
 
-Governing Requirements: REQ-FT-01, REQ-FT-02, REQ-RAG-01, REQ-RAG-02, REQ-AG-01, REQ-AG-02, REQ-MLOPS-01
+Governing Requirements:
+REQ-FT-01, REQ-FT-02, REQ-FT-03, REQ-DOC-01, REQ-RAG-01, REQ-RAG-02,
+REQ-AG-01, REQ-AG-02, REQ-MLOPS-01, REQ-FINOPS-01, REQ-GPU-01, REQ-AZ-01
 """
 from __future__ import annotations
 
@@ -168,6 +170,63 @@ class UnslothTrainingRunSummary(BaseModel):
     finetuned_perplexity: float
     exported_formats: List[str]
     azure_blob_adapter_uri: str
+
+
+class UnslothDPOAlignmentSummary(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    dpo_run_id: str
+    base_sft_adapter: str
+    beta_kl_penalty: float
+    preference_pairs_count: int
+    chosen_reward_mean: float
+    rejected_reward_mean: float
+    reward_margin: float
+    reward_accuracy_pct: float
+    pre_dpo_hallucination_rate_pct: float
+    post_dpo_hallucination_rate_pct: float
+    sir_vs_deductible_disambiguation_f1: float
+
+
+class StitchedMultiPageTable(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    table_type: Literal["SCHEDULE_OF_VALUES", "CARRIER_LOSS_RUN"]
+    pages_spanned: List[int]
+    detected_columns: List[str]
+    orphan_rows_reattached: int
+    records: List[Dict[str, Any]]
+    deterministic_total_usd: float
+
+
+class AzureFinOpsComparisonReport(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    monthly_policies_processed: int
+    avg_tokens_per_policy: int
+    total_monthly_tokens_millions: float
+    aks_vllm_qlora_monthly_cost_usd: float
+    azure_openai_ptu_monthly_cost_usd: float
+    azure_openai_payg_monthly_cost_usd: float
+    recommended_tier: str
+    annual_cost_savings_usd: float
+    savings_percentage: float
+    aks_node_sku: str
+    vllm_p95_latency_ms: float
+
+
+class FreeGPUProviderSpec(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    provider_id: Literal["colab", "kaggle", "modal", "lightning"]
+    provider_name: str
+    gpu_hardware: str
+    vram_gb: int
+    free_tier_quota: str
+    max_model_size_4bit: str
+    launch_command_or_url: str
+    supports_headless_api: bool
+    estimated_qlora_run_minutes: float
 
 
 class LongContextArchitectureReport(BaseModel):

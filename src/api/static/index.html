@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PolicyMiner — Commercial Insurance Program Mining & Risk Intelligence</title>
+  <title>PolicyMiner v2.0 — Commercial Insurance Program Mining &amp; LLM Platform</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -27,36 +27,39 @@
 <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased">
   <!-- Top Navigation Header -->
   <header class="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
       <div class="flex items-center gap-3">
         <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">
           PM
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-base font-semibold tracking-tight">PolicyMiner Commercial P&amp;C Intelligence</h1>
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+            <h1 class="text-sm sm:text-base font-semibold tracking-tight">PolicyMiner Commercial P&amp;C Intelligence</h1>
+            <span class="hidden sm:inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-              Policy Audit Engine Active
+              v2.0 Online
             </span>
           </div>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Automated Binder-to-Policy Reconciliation, SOV Analytics &amp; Endorsement Mining</p>
+          <p class="text-[11px] text-slate-500 dark:text-slate-400">Binder-to-Policy Audit, Multi-Page SOV Stitcher, Unsloth QLoRA+DPO &amp; Azure FinOps</p>
         </div>
       </div>
 
       <!-- Tactile Navigation Tabs -->
-      <nav class="hidden md:flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
-        <button onclick="switchTab('audit')" id="tab-btn-audit" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
+      <nav class="hidden lg:flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+        <button onclick="switchTab('audit')" id="tab-btn-audit" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
           1. Program Audit &amp; SOV
         </button>
-        <button onclick="switchTab('rag')" id="tab-btn-rag" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
-          2. Policy &amp; Endorsement Search
+        <button onclick="switchTab('rag')" id="tab-btn-rag" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          2. Hybrid Policy Search
         </button>
-        <button onclick="switchTab('finetune')" id="tab-btn-finetune" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
-          3. Unsloth QLoRA &amp; Long-Context Lab
+        <button onclick="switchTab('finetune')" id="tab-btn-finetune" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          3. Unsloth QLoRA + DPO
         </button>
-        <button onclick="switchTab('mlops')" id="tab-btn-mlops" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
-          4. Azure MLOps &amp; Quality Gates
+        <button onclick="switchTab('gpu')" id="tab-btn-gpu" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          4. Free GPUs &amp; Azure FinOps
+        </button>
+        <button onclick="switchTab('mlops')" id="tab-btn-mlops" class="tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          5. MLOps &amp; Quality Gates
         </button>
       </nav>
 
@@ -71,19 +74,19 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-    <!-- TAB 1: BINDER VS POLICY AUDIT & SOV VISUALIZER (Primary Hero Job-to-be-Done) -->
+    <!-- TAB 1: BINDER VS POLICY AUDIT, LIVE UPLOAD & MULTI-PAGE SOV STITCHER -->
     <section id="tab-audit" class="space-y-6">
       <!-- Actionable Business Outcome KPI Strip -->
       <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Total Insured Value (SOV Verified)</p>
           <p id="kpi-tiv" class="text-2xl font-bold mt-1 text-slate-900 dark:text-white">$47,500,000</p>
-          <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ 2 Commercial Locations Reconciled</p>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ Multi-Page SOV Stitcher Active</p>
         </div>
         <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/70 shadow-sm">
           <p class="text-xs font-medium text-rose-600 dark:text-rose-400">Unapproved Coverage Gap Detected</p>
           <p id="kpi-gap" class="text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400">$13,926,400</p>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">5 Carrier Policy Divergences vs. Binder</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Carrier Policy Divergences vs. Binder</p>
         </div>
         <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Bound vs. Issued Annual Premium</p>
@@ -93,7 +96,7 @@
         <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
           <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Binder-to-Policy Alignment Score</p>
           <p id="kpi-alignment" class="text-2xl font-bold mt-1 text-indigo-600 dark:text-indigo-400">42.5%</p>
-          <p class="text-xs text-rose-600 dark:text-rose-400 mt-1">Action Required Prior to Policy Acceptance</p>
+          <p class="text-xs text-rose-600 dark:text-rose-400 mt-1">Action Required Prior to Acceptance</p>
         </div>
       </div>
 
@@ -109,17 +112,29 @@
           </p>
         </div>
         <button onclick="loadReconciliation()" class="shrink-0 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all">
-          Re-Run Policy Audit
+          Reset Default Audit
         </button>
+      </div>
+
+      <!-- Live Policy / Endorsement Upload & Real-Time Extraction Simulator -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <h2 class="text-sm font-semibold">Live Commercial Policy / Endorsement Rider Parser</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Paste or edit a carrier endorsement clause below to dynamically re-evaluate the uninsured exposure delta</p>
+          </div>
+          <button onclick="runCustomPolicyAudit()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm">
+            Parse &amp; Re-Audit Policy Text
+          </button>
+        </div>
+        <textarea id="custom-policy-text" rows="2" class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono">ENDORSEMENT CP-14-20: Cyber Extortion Sublimit is amended to $2,500,000 subject to a $250,000 Self-Insured Retention (SIR). ENDORSEMENT FL-10: Restore Flood Zone A coverage in full.</textarea>
       </div>
 
       <!-- Discrepancy Table -->
       <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
-          <div>
-            <h2 class="text-sm font-semibold">Binder vs. Issued Carrier Policy Divergence Matrix</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Cross-referencing Broker Binder (BND-MARSH-2026-881) against 100-Page Policy Jacket &amp; Endorsement Riders</p>
-          </div>
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800">
+          <h2 class="text-sm font-semibold">Binder vs. Issued Carrier Policy Divergence Matrix</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Cross-referencing Broker Binder (BND-MARSH-2026-881) against 100-Page Policy Jacket &amp; Endorsement Riders</p>
         </div>
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse">
@@ -139,12 +154,17 @@
         </div>
       </div>
 
-      <!-- Schedule of Values (SOV) & Coverage Limits Visualization -->
+      <!-- Multi-Page Stitched Schedule of Values (SOV) & Coverage Bars -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
-          <h3 class="text-sm font-semibold">Schedule of Values (SOV) — Commercial Property Exposure</h3>
-          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Deterministic TIV aggregation across bound locations (INV-01 Verified)</p>
-          <div id="sov-cards" class="space-y-3"></div>
+          <div class="flex items-center justify-between mb-3">
+            <div>
+              <h3 class="text-sm font-semibold">Multi-Page Stitched Schedule of Values (SOV)</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Reattaches headerless continuation tables across Page 95–96 (INV-01)</p>
+            </div>
+            <span id="stitched-badge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300"></span>
+          </div>
+          <div id="sov-cards" class="space-y-2.5"></div>
         </div>
 
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
@@ -201,13 +221,13 @@
       </div>
     </section>
 
-    <!-- TAB 3: UNSLOTH QLORA & LONG-CONTEXT LAB -->
+    <!-- TAB 3: UNSLOTH QLORA + DPO & LONG-CONTEXT LAB -->
     <section id="tab-finetune" class="hidden space-y-6">
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <!-- Unsloth QLoRA Parameter Configurator -->
         <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
-          <h2 class="text-sm font-semibold">Unsloth 4-Bit QLoRA Optimizer</h2>
-          <p class="text-xs text-slate-500 dark:text-slate-400">Configure PEFT rank, target modules &amp; sequence window for commercial policy extraction</p>
+          <h2 class="text-sm font-semibold">Unsloth 4-Bit QLoRA + DPO Optimizer</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Configure Stage-1 SFT LoRA rank &amp; Stage-2 DPO preference alignment</p>
 
           <div class="space-y-3 text-xs">
             <div>
@@ -248,7 +268,7 @@
               </select>
             </div>
             <button onclick="runFinetuneSim()" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-all">
-              Compute Unsloth QLoRA Telemetry
+              Compute QLoRA SFT + DPO Telemetry
             </button>
           </div>
         </div>
@@ -257,8 +277,8 @@
         <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
           <div class="flex items-center justify-between">
             <div>
-              <h3 class="text-sm font-semibold">Unsloth QLoRA Memory &amp; Perplexity Telemetry</h3>
-              <p class="text-xs text-slate-500 dark:text-slate-400">Custom Triton kernels + 4-bit NormalFloat (nf4) double quantization</p>
+              <h3 class="text-sm font-semibold">Stage 1 (QLoRA SFT) &amp; Stage 2 (DPO Alignment) Telemetry</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Eliminates SIR vs. Deductible confusion and Endorsement Rider hallucinations</p>
             </div>
             <span id="ft-Savings-Badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"></span>
           </div>
@@ -289,7 +309,40 @@
       </div>
     </section>
 
-    <!-- TAB 4: AZURE MLOPS, AKS/AML & QUALITY GATES -->
+    <!-- TAB 4: FREE GPU RUNNER & AZURE FINOPS CALCULATOR -->
+    <section id="tab-gpu" class="hidden space-y-6">
+      <!-- Free Cloud GPU Dispatcher Cards -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h2 class="text-sm font-semibold">Zero-Cost Cloud GPU Experiment Dispatcher (Colab, Kaggle, Modal, Lightning)</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Run real Unsloth 4-bit QLoRA + DPO training on free NVIDIA T4, A10G, or L4 GPUs</p>
+          </div>
+          <a href="https://colab.research.google.com/github/akmalkhaniub/policyminer-llm-platform/blob/main/notebooks/unsloth_qlora_insurance_finetuning.ipynb" target="_blank" rel="noopener" class="px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm text-center">
+            🚀 Launch 1-Click in Google Colab (T4 GPU)
+          </a>
+        </div>
+        <div id="gpu-cards" class="grid grid-cols-1 md:grid-cols-2 gap-4"></div>
+      </div>
+
+      <!-- Azure Cloud FinOps Optimizer -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h3 class="text-sm font-semibold">Azure Cloud Cost-Efficiency &amp; FinOps Optimizer (AKS vLLM QLoRA vs. Azure OpenAI PTU / PAYG)</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Model monthly token volume to find the crossover between self-hosted AKS A100 nodes and managed PTUs</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <label class="font-medium">Monthly Policies:</label>
+            <input id="finops-policies" type="number" value="25000" step="5000" class="w-28 px-2.5 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+            <button onclick="loadFinOpsAndGpu()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold">Calculate</button>
+          </div>
+        </div>
+        <div id="finops-grid" class="grid grid-cols-1 sm:grid-cols-4 gap-4"></div>
+      </div>
+    </section>
+
+    <!-- TAB 5: AZURE MLOPS, AKS/AML & QUALITY GATES -->
     <section id="tab-mlops" class="hidden space-y-6">
       <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -334,7 +387,6 @@
   </main>
 
   <script>
-    // Theme Persistence
     function applyTheme(theme) {
       const root = document.documentElement;
       if (theme === 'dark') {
@@ -356,15 +408,14 @@
 
     applyTheme(localStorage.getItem('theme') || 'light');
 
-    // Tab Switching
     function switchTab(tab) {
-      ['audit', 'rag', 'finetune', 'mlops'].forEach(t => {
+      ['audit', 'rag', 'finetune', 'gpu', 'mlops'].forEach(t => {
         document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
         const btn = document.getElementById('tab-btn-' + t);
         if (t === tab) {
-          btn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm';
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm';
         } else {
-          btn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900';
+          btn.className = 'tab-btn px-3 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900';
         }
       });
     }
@@ -373,15 +424,10 @@
       return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
     }
 
-    async function loadReconciliation() {
-      const res = await fetch('/api/v1/reconcile');
-      const data = await res.json();
-      const rec = data.reconciliation;
-
+    function renderReconciliationTable(rec) {
       document.getElementById('exec-summary').textContent = rec.executive_summary;
-      document.getElementById('kpi-tiv').textContent = fmtUSD(data.visualization_kpis.total_insured_value_usd);
-      document.getElementById('kpi-gap').textContent = fmtUSD(data.visualization_kpis.uninsured_exposure_gap_usd);
-      document.getElementById('kpi-alignment').textContent = data.visualization_kpis.binder_alignment_pct + '%';
+      document.getElementById('kpi-gap').textContent = fmtUSD(rec.total_uninsured_exposure_delta_usd);
+      document.getElementById('kpi-alignment').textContent = rec.alignment_score_pct + '%';
 
       const tbody = document.getElementById('discrepancy-tbody');
       tbody.innerHTML = rec.discrepancies.map(d => {
@@ -404,26 +450,35 @@
           </tr>
         `;
       }).join('');
+    }
 
-      // SOV Cards
-      const sovContainer = document.getElementById('sov-cards');
-      sovContainer.innerHTML = data.policy.sov_locations.map(loc => `
-        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+    function renderStitchedSov(stitched) {
+      document.getElementById('kpi-tiv').textContent = fmtUSD(stitched.deterministic_total_usd);
+      document.getElementById('stitched-badge').textContent = `${stitched.orphan_rows_reattached} Orphan Rows Stitched (${fmtUSD(stitched.deterministic_total_usd)} TIV)`;
+      document.getElementById('sov-cards').innerHTML = stitched.records.map(loc => `
+        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
           <div>
             <div class="flex items-center gap-2">
-              <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">${loc.loc_id}</span>
-              <span class="text-xs font-semibold">${loc.address}</span>
+              <span class="font-bold text-indigo-600 dark:text-indigo-400">${loc.loc_id}</span>
+              <span class="font-semibold">${loc.address}</span>
+              <span class="px-1.5 py-0.5 rounded bg-slate-200 dark:bg-slate-700 text-[10px] font-mono">Page ${loc.source_page}</span>
             </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${loc.occupancy} • ${loc.construction_class} • <span class="font-semibold text-amber-600 dark:text-amber-400">${loc.flood_zone}</span></p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${loc.occupancy} • <span class="font-semibold text-amber-600 dark:text-amber-400">Flood ${loc.flood_zone}</span></p>
           </div>
           <div class="text-right">
-            <div class="text-sm font-bold">${fmtUSD(loc.total_insured_value_usd)} TIV</div>
-            <div class="text-[11px] text-slate-500">Bldg ${fmtUSD(loc.building_value_usd)} | BI ${fmtUSD(loc.business_income_usd)}</div>
+            <div class="text-sm font-bold">${fmtUSD(loc.tiv_usd)} TIV</div>
+            <div class="text-[11px] text-slate-500">Bldg ${fmtUSD(loc.building_usd)} | BI ${fmtUSD(loc.business_income_usd)}</div>
           </div>
         </div>
       `).join('');
+    }
 
-      // Coverage Bars
+    async function loadReconciliation() {
+      const res = await fetch('/api/v1/reconcile');
+      const data = await res.json();
+      renderReconciliationTable(data.reconciliation);
+      renderStitchedSov(data.stitched_multipage_sov);
+
       const covBars = document.getElementById('coverage-bars');
       covBars.innerHTML = data.binder.coverages.map((bCov, idx) => {
         const pCov = data.policy.coverages[idx];
@@ -442,7 +497,6 @@
         `;
       }).join('');
 
-      // LangSmith Spans
       const spansContainer = document.getElementById('langsmith-spans');
       spansContainer.innerHTML = data.langsmith_traces.map(s => `
         <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs">
@@ -453,6 +507,18 @@
           <p class="text-[11px] text-slate-500 mt-1">Type: ${s.run_type} • Tokens: ${s.prompt_tokens + s.completion_tokens}</p>
         </div>
       `).join('');
+    }
+
+    async function runCustomPolicyAudit() {
+      const raw_policy_text = document.getElementById('custom-policy-text').value;
+      const res = await fetch('/api/v1/documents/upload-and-audit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ raw_policy_text })
+      });
+      const data = await res.json();
+      renderReconciliationTable(data.reconciliation);
+      renderStitchedSov(data.stitched_multipage_sov);
     }
 
     async function runRagSearch() {
@@ -496,6 +562,7 @@
       });
       const data = await res.json();
       const s = data.qlora_summary;
+      const dpo = data.dpo_summary;
 
       document.getElementById('ft-Savings-Badge').textContent = `${s.vram_savings_pct}% VRAM Saved via Unsloth QLoRA`;
       document.getElementById('ft-metrics-grid').innerHTML = `
@@ -504,12 +571,12 @@
           <div class="text-base font-bold mt-0.5">${s.standard_fp16_vram_gb} GB → <span class="text-emerald-600 dark:text-emerald-400">${s.unsloth_qlora_vram_gb} GB</span></div>
         </div>
         <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-          <div class="text-[11px] text-slate-500">Trainable LoRA Parameters</div>
-          <div class="text-base font-bold mt-0.5">${s.trainable_lora_params_millions}M (${s.trainable_percentage}%)</div>
+          <div class="text-[11px] text-slate-500">Stage 1 SFT Perplexity (PPL)</div>
+          <div class="text-base font-bold mt-0.5">${s.baseline_perplexity} → <span class="text-indigo-600 dark:text-indigo-400">${s.finetuned_perplexity}</span></div>
         </div>
         <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800">
-          <div class="text-[11px] text-slate-500">Domain Perplexity (PPL)</div>
-          <div class="text-base font-bold mt-0.5">${s.baseline_perplexity} → <span class="text-indigo-600 dark:text-indigo-400">${s.finetuned_perplexity}</span></div>
+          <div class="text-[11px] text-slate-500">Stage 2 DPO Hallucination Rate</div>
+          <div class="text-base font-bold mt-0.5">${dpo.pre_dpo_hallucination_rate_pct}% → <span class="text-emerald-600 dark:text-emerald-400">${dpo.post_dpo_hallucination_rate_pct}% (F1 ${dpo.sir_vs_deductible_disambiguation_f1})</span></div>
         </div>
       `;
 
@@ -530,6 +597,51 @@
           <td class="py-2.5 px-3 font-bold">${b.cross_section_endorsement_accuracy_pct}%</td>
         </tr>
       `).join('');
+    }
+
+    async function loadFinOpsAndGpu() {
+      const monthly_policies_processed = parseInt(document.getElementById('finops-policies').value || '25000', 10);
+      const res = await fetch('/api/v1/cloud/finops-and-gpu', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ monthly_policies_processed, avg_tokens_per_policy: 42000 })
+      });
+      const data = await res.json();
+      const f = data.finops_report;
+
+      document.getElementById('gpu-cards').innerHTML = data.free_gpu_targets.map(g => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-600 dark:text-indigo-400">${g.provider_name}</span>
+            <span class="px-2 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-semibold">${g.gpu_hardware} (${g.vram_gb}GB VRAM)</span>
+          </div>
+          <p class="text-slate-600 dark:text-slate-300"><strong>Free Quota:</strong> ${g.free_tier_quota} • <strong>Est. Run:</strong> ${g.estimated_qlora_run_minutes} mins</p>
+          <div class="p-2 rounded bg-slate-900 text-slate-100 font-mono text-[11px] overflow-x-auto">${g.launch_command_or_url}</div>
+        </div>
+      `).join('');
+
+      document.getElementById('finops-grid').innerHTML = `
+        <div class="p-4 rounded-xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/50 dark:bg-emerald-950/30">
+          <div class="text-xs font-medium text-emerald-700 dark:text-emerald-300">AKS Ray + vLLM (4-Bit QLoRA)</div>
+          <div class="text-xl font-bold mt-1">${fmtUSD(f.aks_vllm_qlora_monthly_cost_usd)}/mo</div>
+          <div class="text-[11px] text-slate-500 mt-1">${f.aks_node_sku}</div>
+        </div>
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+          <div class="text-xs font-medium text-slate-500">Azure OpenAI PTU Reservation</div>
+          <div class="text-xl font-bold mt-1">${fmtUSD(f.azure_openai_ptu_monthly_cost_usd)}/mo</div>
+          <div class="text-[11px] text-slate-500 mt-1">${f.total_monthly_tokens_millions}M Monthly Tokens</div>
+        </div>
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800">
+          <div class="text-xs font-medium text-slate-500">Azure OpenAI PAYG Billing</div>
+          <div class="text-xl font-bold mt-1">${fmtUSD(f.azure_openai_payg_monthly_cost_usd)}/mo</div>
+          <div class="text-[11px] text-slate-500 mt-1">Standard Per-Token Rate</div>
+        </div>
+        <div class="p-4 rounded-xl border border-indigo-200 dark:border-indigo-900 bg-indigo-50/50 dark:bg-indigo-950/30">
+          <div class="text-xs font-medium text-indigo-700 dark:text-indigo-300">Projected Annual Savings</div>
+          <div class="text-xl font-bold mt-1 text-indigo-600 dark:text-indigo-400">${fmtUSD(f.annual_cost_savings_usd)}/yr</div>
+          <div class="text-[11px] text-slate-500 mt-1">${f.savings_percentage}% Cost Reduction on AKS</div>
+        </div>
+      `;
     }
 
     async function runMlopsEval(simulate_degradation) {
@@ -583,10 +695,10 @@
       `).join('');
     }
 
-    // Initialize all views
     loadReconciliation();
     runRagSearch();
     runFinetuneSim();
+    loadFinOpsAndGpu();
     runMlopsEval(false);
     loadEvalGates();
   </script>

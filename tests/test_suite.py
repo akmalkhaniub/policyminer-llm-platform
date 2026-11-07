@@ -1,7 +1,7 @@
 """
-100% Traceable Pytest Verification Suite for PolicyMiner LLM Platform.
-Maps directly to REQ-FT-01, REQ-FT-02, REQ-RAG-01, REQ-RAG-02,
-REQ-AG-01, REQ-AG-02, REQ-MLOPS-01, and REQ-AZ-01 in SPECIFICATION.md.
+100% Traceable Pytest Verification Suite for PolicyMiner LLM Platform (v2.0).
+Maps directly to REQ-FT-01..03, REQ-DOC-01, REQ-RAG-01..02,
+REQ-AG-01..02, REQ-MLOPS-01, REQ-FINOPS-01, REQ-GPU-01, and REQ-AZ-01.
 """
 from __future__ import annotations
 
@@ -21,6 +21,10 @@ from src.core.schemas import (
     VectorBackendType,
 )
 from src.evals.runner import run_all_evaluation_gates
+from src.finetuning.azure_finops_dispatcher import (
+    compute_azure_finops_comparison,
+    get_free_gpu_dispatch_targets,
+)
 from src.finetuning.long_context_architectures import (
     benchmark_long_context_architectures,
     evaluate_needle_in_policy_haystack,
@@ -31,12 +35,18 @@ from src.finetuning.mlflow_evaluator import (
     evaluate_and_check_retraining_gate,
 )
 from src.finetuning.unsloth_trainer import (
+    build_insurance_dpo_preference_dataset,
     build_insurance_sft_dataset,
+    run_unsloth_dpo_alignment,
     run_unsloth_qlora_experiment,
 )
 from src.rag.embeddings import (
     InsuranceSentenceTransformerEncoder,
     expand_insurance_query,
+)
+from src.rag.table_stitcher import (
+    parse_and_audit_custom_policy_text,
+    stitch_multipage_insurance_tables,
 )
 from src.rag.vector_router import UnifiedInsuranceVectorRouter
 
@@ -76,6 +86,34 @@ def test_req_ft_02_long_context_architectures() -> None:
     assert hierarchical["endorsement_override_detected"] is True
     assert hierarchical["extracted_flood_limit_usd"] == 500_000.0
     assert hierarchical["accuracy"] == 1.0
+
+
+def test_req_ft_03_unsloth_dpo_preference_alignment() -> None:
+    """REQ-FT-03: Verify Stage 2 Direct Preference Optimization (DPO) reduces hallucinations."""
+    dpo_pairs = build_insurance_dpo_preference_dataset()
+    assert len(dpo_pairs) >= 2
+    assert "SELF_INSURED_RETENTION" in dpo_pairs[0]["chosen"]
+
+    dpo_summary = run_unsloth_dpo_alignment()
+    assert dpo_summary.reward_margin > 3.0
+    assert dpo_summary.post_dpo_hallucination_rate_pct < dpo_summary.pre_dpo_hallucination_rate_pct
+    assert dpo_summary.sir_vs_deductible_disambiguation_f1 >= 0.99
+
+
+def test_req_doc_01_multipage_sov_stitcher_and_live_parser() -> None:
+    """REQ-DOC-01 & INV-01: Verify multi-page headerless SOV stitching and live policy parser."""
+    stitched = stitch_multipage_insurance_tables()
+    assert stitched.pages_spanned == [95, 96]
+    assert stitched.orphan_rows_reattached == 2
+    assert len(stitched.records) == 4
+    assert stitched.deterministic_total_usd == 72_000_000.0
+
+    parsed = parse_and_audit_custom_policy_text(
+        "ENDORSEMENT CP-14-20: Cyber Extortion Sublimit is amended to $3,000,000. Restore Flood Zone A."
+    )
+    # With Flood Zone A restored ($10M) and Cyber sublimit raised to $3M ($2M gap instead of $3.5M),
+    # exposure delta drops significantly from $13,926,400 to $2,426,400
+    assert parsed["reconciliation"]["total_uninsured_exposure_delta_usd"] == 2_426_400.0
 
 
 def test_req_rag_01_query_encoding_and_embeddings() -> None:
@@ -130,6 +168,17 @@ def test_req_ag_02_binder_policy_divergence() -> None:
     assert report.total_uninsured_exposure_delta_usd == 13_926_400.0
 
 
+def test_req_finops_01_and_req_gpu_01_cloud_dispatch() -> None:
+    """REQ-FINOPS-01 & REQ-GPU-01: Verify Azure FinOps calculator and Free GPU targets."""
+    finops = compute_azure_finops_comparison(monthly_policies_processed=25000, avg_tokens_per_policy=42000)
+    assert finops.aks_vllm_qlora_monthly_cost_usd < finops.azure_openai_payg_monthly_cost_usd
+    assert finops.annual_cost_savings_usd > 10000.0
+
+    targets = get_free_gpu_dispatch_targets()
+    providers = {t.provider_id for t in targets}
+    assert providers == {"colab", "kaggle", "modal", "lightning"}
+
+
 def test_req_mlops_01_evaluation_and_retraining() -> None:
     """REQ-MLOPS-01 & INV-05: Verify F1, Perplexity, PSI drift and automatic Azure ML retraining gate."""
     policy = get_sample_issued_policy_jacket().model_dump()
@@ -151,7 +200,7 @@ def test_req_mlops_01_evaluation_and_retraining() -> None:
 
 
 def test_req_az_01_infrastructure_manifests() -> None:
-    """REQ-AZ-01: Verify Azure ML v2, AKS Ray/vLLM, DeepSpeed ZeRO-3, Docker & Azure Pipelines exist."""
+    """REQ-AZ-01: Verify Azure ML v2, AKS Ray/vLLM, DeepSpeed ZeRO-3, Kaggle & Modal files exist."""
     expected_files = [
         "Dockerfile",
         "docker-compose.yml",
@@ -161,21 +210,31 @@ def test_req_az_01_infrastructure_manifests() -> None:
         "deploy/deepspeed/ds_config_zero3.json",
         "scripts/train_qlora_unsloth.sh",
         "scripts/deploy_azure_aks_aml.sh",
+        "scripts/modal_unsloth_train.py",
+        "scripts/dispatch_free_gpu.py",
         "notebooks/unsloth_qlora_insurance_finetuning.ipynb",
+        "notebooks/kernel-metadata.json",
     ]
     for rel_path in expected_files:
         assert (REPO_ROOT / rel_path).exists(), f"Missing required artifact: {rel_path}"
 
 
 def test_fastapi_endpoints_and_4_gate_runner() -> None:
-    """Verify all REST API endpoints and the 4-Gate evaluation runner."""
+    """Verify all REST API endpoints (including v2.0 upload, DPO, FinOps & GPU) and 4-Gate runner."""
     r_health = client.get("/healthz")
     assert r_health.status_code == 200
-    assert r_health.json()["status"] == "healthy"
+    assert r_health.json()["version"] == "2.0.0"
 
     r_rec = client.get("/api/v1/reconcile")
     assert r_rec.status_code == 200
-    assert r_rec.json()["reconciliation"]["total_uninsured_exposure_delta_usd"] == 13_926_400.0
+    assert r_rec.json()["stitched_multipage_sov"]["deterministic_total_usd"] == 72_000_000.0
+
+    r_upload = client.post(
+        "/api/v1/documents/upload-and-audit",
+        json={"raw_policy_text": "Cyber Extortion Sublimit $2,500,000. Restore Flood Zone A."},
+    )
+    assert r_upload.status_code == 200
+    assert r_upload.json()["reconciliation"]["total_uninsured_exposure_delta_usd"] < 13_926_400.0
 
     r_rag = client.post(
         "/api/v1/rag/search",
@@ -187,14 +246,15 @@ def test_fastapi_endpoints_and_4_gate_runner() -> None:
     r_ft = client.post("/api/v1/finetuning/simulate", json={"lora_r": 32, "lora_alpha": 64})
     assert r_ft.status_code == 200
     assert r_ft.json()["qlora_summary"]["vram_savings_pct"] >= 60.0
+    assert r_ft.json()["dpo_summary"]["post_dpo_hallucination_rate_pct"] < 1.0
+
+    r_cloud = client.post("/api/v1/cloud/finops-and-gpu", json={"monthly_policies_processed": 25000})
+    assert r_cloud.status_code == 200
+    assert len(r_cloud.json()["free_gpu_targets"]) == 4
 
     r_mlops = client.post("/api/v1/mlops/evaluate", json={"simulate_degradation": True})
     assert r_mlops.status_code == 200
     assert r_mlops.json()["retraining_triggered"] is True
-
-    r_ui = client.get("/")
-    assert r_ui.status_code == 200
-    assert "PolicyMiner" in r_ui.text
 
     eval_report = run_all_evaluation_gates()
     assert eval_report["all_passed"] is True

@@ -1,9 +1,11 @@
 """
-FastAPI Application Server for PolicyMiner LLM Platform.
+FastAPI Application Server for PolicyMiner LLM Platform (v2.0).
 Exposes REST API endpoints for:
 - Agentic Binder-vs-Policy Reconciliation & SOV Visualization (`/api/v1/reconcile`)
+- Live Policy Document Upload & Multi-Page SOV Table Stitcher (`/api/v1/documents/upload-and-audit`)
 - Multi-Backend Hybrid RAG Search (`/api/v1/rag/search`)
-- Unsloth QLoRA Fine-Tuning & Long-Context Benchmarks (`/api/v1/finetuning/simulate`)
+- Unsloth QLoRA SFT + DPO Alignment & Long-Context Benchmarks (`/api/v1/finetuning/simulate`)
+- Azure FinOps Cost Optimizer & Free-GPU Dispatcher (`/api/v1/cloud/finops-and-gpu`)
 - MLflow Model Performance & Drift Monitoring (`/api/v1/mlops/evaluate`)
 - 4-Gate Verification Suite (`/api/v1/evals/run`)
 """
@@ -20,22 +22,35 @@ from pydantic import BaseModel
 from src.agents.langsmith_workflow import LangSmithInsuranceMiningWorkflow
 from src.core.schemas import BaseLLMArchitecture, UnslothQLoRAConfig, VectorBackendType
 from src.evals.runner import run_all_evaluation_gates
+from src.finetuning.azure_finops_dispatcher import (
+    compute_azure_finops_comparison,
+    get_free_gpu_dispatch_targets,
+)
 from src.finetuning.long_context_architectures import (
     benchmark_long_context_architectures,
     evaluate_needle_in_policy_haystack,
 )
 from src.finetuning.mlflow_evaluator import evaluate_and_check_retraining_gate
 from src.finetuning.unsloth_trainer import (
+    build_insurance_dpo_preference_dataset,
     build_insurance_sft_dataset,
+    run_unsloth_dpo_alignment,
     run_unsloth_qlora_experiment,
 )
 from src.rag.embeddings import expand_insurance_query
+from src.rag.table_stitcher import (
+    parse_and_audit_custom_policy_text,
+    stitch_multipage_insurance_tables,
+)
 from src.rag.vector_router import UnifiedInsuranceVectorRouter
 
 app = FastAPI(
     title="PolicyMiner — Commercial Insurance Mining & LLM Engineering Platform",
-    version="1.0.0",
-    description="Commercial P&C Binder/Policy/SOV Extraction, Unsloth QLoRA, Multi-Vector Hybrid RAG, LangSmith & Azure MLOps",
+    version="2.0.0",
+    description=(
+        "Commercial P&C Binder/Policy/SOV Extraction, Unsloth QLoRA + DPO, "
+        "Multi-Page Table Stitcher, Multi-Vector Hybrid RAG, LangSmith, Azure FinOps & Free-GPU Dispatcher"
+    ),
 )
 
 app.add_middleware(
@@ -61,11 +76,24 @@ class DriftSimulationRequest(BaseModel):
     simulate_degradation: bool = False
 
 
+class CustomPolicyAuditRequest(BaseModel):
+    raw_policy_text: str = (
+        "ENDORSEMENT CP-14-20: Cyber Extortion Sublimit is amended to $2,500,000 subject to "
+        "a $250,000 Self-Insured Retention (SIR). ENDORSEMENT FL-10: Restore Flood Zone A coverage."
+    )
+
+
+class FinOpsRequest(BaseModel):
+    monthly_policies_processed: int = 25000
+    avg_tokens_per_policy: int = 42000
+
+
 @app.get("/healthz")
 def healthz() -> dict:
     return {
         "status": "healthy",
         "service": "policyminer-llm-platform",
+        "version": "2.0.0",
         "supported_vector_backends": [b.value for b in VectorBackendType],
         "supported_base_models": [m.value for m in BaseLLMArchitecture],
     }
@@ -78,7 +106,14 @@ def get_reconciliation_workspace(
     ),
     backend: VectorBackendType = Query(default=VectorBackendType.AZURE_COGNITIVE_SEARCH),
 ) -> dict:
-    return workflow.run_pipeline(query=query, vector_backend=backend)
+    out = workflow.run_pipeline(query=query, vector_backend=backend)
+    out["stitched_multipage_sov"] = stitch_multipage_insurance_tables().model_dump()
+    return out
+
+
+@app.post("/api/v1/documents/upload-and-audit")
+def upload_and_audit_policy(req: CustomPolicyAuditRequest) -> dict:
+    return parse_and_audit_custom_policy_text(req.raw_policy_text)
 
 
 @app.post("/api/v1/rag/search")
@@ -97,6 +132,7 @@ def search_policy_corpus(req: RAGSearchRequest) -> dict:
 def simulate_unsloth_finetuning(config: Optional[UnslothQLoRAConfig] = None) -> dict:
     cfg = config or UnslothQLoRAConfig()
     summary = run_unsloth_qlora_experiment(cfg)
+    dpo_summary = run_unsloth_dpo_alignment(base_sft_adapter=summary.run_id)
     long_context = [r.model_dump() for r in benchmark_long_context_architectures()]
     needle_comparison = {
         "naive_rag": evaluate_needle_in_policy_haystack(strategy="naive_fixed_chunk_rag"),
@@ -106,9 +142,24 @@ def simulate_unsloth_finetuning(config: Optional[UnslothQLoRAConfig] = None) -> 
     }
     return {
         "qlora_summary": summary.model_dump(),
+        "dpo_summary": dpo_summary.model_dump(),
         "long_context_benchmarks": long_context,
         "needle_in_haystack_comparison": needle_comparison,
         "sample_sft_records": build_insurance_sft_dataset(),
+        "sample_dpo_pairs": build_insurance_dpo_preference_dataset(),
+    }
+
+
+@app.post("/api/v1/cloud/finops-and-gpu")
+def get_finops_and_free_gpu(req: FinOpsRequest) -> dict:
+    finops = compute_azure_finops_comparison(
+        monthly_policies_processed=req.monthly_policies_processed,
+        avg_tokens_per_policy=req.avg_tokens_per_policy,
+    )
+    gpu_targets = [t.model_dump() for t in get_free_gpu_dispatch_targets()]
+    return {
+        "finops_report": finops.model_dump(),
+        "free_gpu_targets": gpu_targets,
     }
 
 
