@@ -25,16 +25,16 @@ def compute_azure_finops_comparison(
     total_tokens = monthly_policies_processed * avg_tokens_per_policy
     total_tokens_millions = round(total_tokens / 1e6, 2)
 
-    # 1. Azure OpenAI PAYG (~$3.10 blended per 1M tokens for 100-page long-context extraction)
-    payg_monthly = round(total_tokens_millions * 3.10, 2)
+    # 1. Azure OpenAI PAYG (~$5.20 blended per 1M tokens for 100-page long-context GPT-4o extraction)
+    payg_monthly = round(total_tokens_millions * 5.20, 2)
 
     # 2. Azure OpenAI PTU (Minimum PTU reservation blocks for sustained high-context throughput)
     ptu_blocks = max(1, round(total_tokens_millions / 450.0))
     ptu_monthly = round(ptu_blocks * 2650.0, 2)
 
     # 3. Self-hosted AKS + Ray Serve + vLLM (Qwen2.5-14B 4-bit QLoRA on Azure A100 nodes)
-    # 1x A100 80GB node (~$1,680/mo with 1-year Azure Savings Plan) processes ~600M tokens/mo
-    aks_nodes_needed = max(1, int((total_tokens_millions // 650.0) + 1))
+    # 1x A100 80GB node (~$1,680/mo with Azure 1-yr Savings Plan) processes ~1,500M tokens/mo in 4-bit vLLM
+    aks_nodes_needed = max(1, int((total_tokens_millions // 1500.0) + 1))
     aks_vllm_monthly = round(aks_nodes_needed * 1680.0 + 185.0, 2)  # +$185 AKS control/ACR/Blob
 
     best_alternative = min(payg_monthly, ptu_monthly)
