@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PolicyMiner — Commercial Insurance Program Mining & Risk Intelligence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body { transition: background-color 0.15s ease, color 0.15s ease; }
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 min-h-screen antialiased">
+  <!-- Top Navigation Header -->
+  <header class="sticky top-0 z-30 border-b border-slate-200 dark:border-slate-800 bg-white/95 dark:bg-slate-900/95 backdrop-blur">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-indigo-600 flex items-center justify-center text-white font-bold shadow-sm">
+          PM
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-semibold tracking-tight">PolicyMiner Commercial P&amp;C Intelligence</h1>
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/60 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              Policy Audit Engine Active
+            </span>
+          </div>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Automated Binder-to-Policy Reconciliation, SOV Analytics &amp; Endorsement Mining</p>
+        </div>
+      </div>
+
+      <!-- Tactile Navigation Tabs -->
+      <nav class="hidden md:flex items-center gap-1 p-1 rounded-xl bg-slate-100 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700">
+        <button onclick="switchTab('audit')" id="tab-btn-audit" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm">
+          1. Program Audit &amp; SOV
+        </button>
+        <button onclick="switchTab('rag')" id="tab-btn-rag" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          2. Policy &amp; Endorsement Search
+        </button>
+        <button onclick="switchTab('finetune')" id="tab-btn-finetune" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          3. Unsloth QLoRA &amp; Long-Context Lab
+        </button>
+        <button onclick="switchTab('mlops')" id="tab-btn-mlops" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900">
+          4. Azure MLOps &amp; Quality Gates
+        </button>
+      </nav>
+
+      <!-- Theme Toggle -->
+      <div class="flex items-center gap-2">
+        <button onclick="toggleTheme()" id="theme-toggle" class="px-3 py-1.5 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium hover:border-indigo-500 transition-all flex items-center gap-1.5">
+          <span id="theme-icon">🌙</span>
+          <span id="theme-label">Dark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <!-- TAB 1: BINDER VS POLICY AUDIT & SOV VISUALIZER (Primary Hero Job-to-be-Done) -->
+    <section id="tab-audit" class="space-y-6">
+      <!-- Actionable Business Outcome KPI Strip -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Total Insured Value (SOV Verified)</p>
+          <p id="kpi-tiv" class="text-2xl font-bold mt-1 text-slate-900 dark:text-white">$47,500,000</p>
+          <p class="text-xs text-emerald-600 dark:text-emerald-400 mt-1">✓ 2 Commercial Locations Reconciled</p>
+        </div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-rose-200 dark:border-rose-900/70 shadow-sm">
+          <p class="text-xs font-medium text-rose-600 dark:text-rose-400">Unapproved Coverage Gap Detected</p>
+          <p id="kpi-gap" class="text-2xl font-bold mt-1 text-rose-600 dark:text-rose-400">$13,926,400</p>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">5 Carrier Policy Divergences vs. Binder</p>
+        </div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Bound vs. Issued Annual Premium</p>
+          <p id="kpi-premium" class="text-2xl font-bold mt-1 text-slate-900 dark:text-white">$412.5k → $438.9k</p>
+          <p class="text-xs text-amber-600 dark:text-amber-400 mt-1">+$26,400 (+6.4%) Unapproved Surcharge</p>
+        </div>
+        <div class="p-4 rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-sm">
+          <p class="text-xs font-medium text-slate-500 dark:text-slate-400">Binder-to-Policy Alignment Score</p>
+          <p id="kpi-alignment" class="text-2xl font-bold mt-1 text-indigo-600 dark:text-indigo-400">42.5%</p>
+          <p class="text-xs text-rose-600 dark:text-rose-400 mt-1">Action Required Prior to Policy Acceptance</p>
+        </div>
+      </div>
+
+      <!-- Executive Alert Banner -->
+      <div class="p-4 rounded-xl bg-rose-50/80 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div class="space-y-1">
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 text-xs font-bold rounded bg-rose-600 text-white">CRITICAL ENDORSEMENT OVERRIDE</span>
+            <span class="text-sm font-semibold text-slate-900 dark:text-white">Apex Global Logistics &amp; Cold Storage LLC (POL-AXA-2026-9921)</span>
+          </div>
+          <p id="exec-summary" class="text-xs text-slate-700 dark:text-slate-300 leading-relaxed">
+            Loading automated binder-to-policy audit...
+          </p>
+        </div>
+        <button onclick="loadReconciliation()" class="shrink-0 px-4 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm transition-all">
+          Re-Run Policy Audit
+        </button>
+      </div>
+
+      <!-- Discrepancy Table -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="px-5 py-4 border-b border-slate-200 dark:border-slate-800 flex items-center justify-between">
+          <div>
+            <h2 class="text-sm font-semibold">Binder vs. Issued Carrier Policy Divergence Matrix</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Cross-referencing Broker Binder (BND-MARSH-2026-881) against 100-Page Policy Jacket &amp; Endorsement Riders</p>
+          </div>
+        </div>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-800 text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 bg-slate-50/60 dark:bg-slate-800/40">
+                <th class="py-3 px-4">Severity</th>
+                <th class="py-3 px-4">Coverage Line</th>
+                <th class="py-3 px-4">Broker Binder (Agreed)</th>
+                <th class="py-3 px-4">Issued Carrier Policy</th>
+                <th class="py-3 px-4">Exposure Delta</th>
+                <th class="py-3 px-4">Citation &amp; Recommended Action</th>
+              </tr>
+            </thead>
+            <tbody id="discrepancy-tbody" class="divide-y divide-slate-200 dark:divide-slate-800 text-xs">
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Schedule of Values (SOV) & Coverage Limits Visualization -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <h3 class="text-sm font-semibold">Schedule of Values (SOV) — Commercial Property Exposure</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Deterministic TIV aggregation across bound locations (INV-01 Verified)</p>
+          <div id="sov-cards" class="space-y-3"></div>
+        </div>
+
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+          <h3 class="text-sm font-semibold">Bound vs. Issued Coverage Limit Comparison</h3>
+          <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Visualizing silent sublimit erosion and endorsement exclusions</p>
+          <div id="coverage-bars" class="space-y-4"></div>
+        </div>
+      </div>
+
+      <!-- Progressive Disclosure: LangSmith Execution Trace -->
+      <details class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <summary class="px-5 py-3.5 cursor-pointer flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+          <span>▶ Inspect LangChain / LangSmith Multi-Agent Execution Trace &amp; Provenance Spans</span>
+          <span class="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+        </summary>
+        <div class="p-5 border-t border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/50">
+          <div id="langsmith-spans" class="grid grid-cols-1 md:grid-cols-5 gap-3"></div>
+        </div>
+      </details>
+    </section>
+
+    <!-- TAB 2: MULTI-BACKEND HYBRID RAG SEARCH -->
+    <section id="tab-rag" class="hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-sm font-semibold">Hybrid Policy &amp; Endorsement Retrieval Engine</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Combines SentenceTransformers Bi-Encoder + BM25 Reciprocal Rank Fusion (RRF k=60) + Cross-Encoder Endorsement Re-Ranking</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <label class="text-xs font-medium text-slate-600 dark:text-slate-300">Vector Database:</label>
+            <select id="rag-backend" class="px-3 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-xs font-medium">
+              <option value="AZURE_AI_SEARCH_HYBRID">Azure Cognitive Search (Hybrid RRF)</option>
+              <option value="FAISS_HYBRID_LOCAL">FAISS Local Index + BM25</option>
+              <option value="PINECONE_SERVERLESS">Pinecone Serverless</option>
+              <option value="WEAVIATE_HYBRID_BM25">Weaviate Hybrid Search</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="flex flex-col sm:flex-row gap-2">
+          <input id="rag-query" type="text" value="What endorsements reduced the Cyber SIR sublimit or excluded Flood Zone A on the SOV?" class="flex-1 px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <button onclick="runRagSearch()" class="px-5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold">
+            Search Policy Corpus
+          </button>
+        </div>
+
+        <div class="p-3 rounded-lg bg-indigo-50/70 dark:bg-indigo-950/30 border border-indigo-200 dark:border-indigo-900/60 text-xs">
+          <span class="font-semibold text-indigo-700 dark:text-indigo-300">Acronym &amp; Domain Query Encoding:</span>
+          <span id="rag-expanded-query" class="text-slate-700 dark:text-slate-300 ml-1 font-mono text-[11px]"></span>
+        </div>
+
+        <div id="rag-results" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2"></div>
+      </div>
+    </section>
+
+    <!-- TAB 3: UNSLOTH QLORA & LONG-CONTEXT LAB -->
+    <section id="tab-finetune" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Unsloth QLoRA Parameter Configurator -->
+        <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+          <h2 class="text-sm font-semibold">Unsloth 4-Bit QLoRA Optimizer</h2>
+          <p class="text-xs text-slate-500 dark:text-slate-400">Configure PEFT rank, target modules &amp; sequence window for commercial policy extraction</p>
+
+          <div class="space-y-3 text-xs">
+            <div>
+              <label class="block font-medium mb-1">Foundation LLM Architecture</label>
+              <select id="ft-model" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <option value="unsloth/Qwen2.5-14B-Instruct-bnb-4bit">Qwen2.5-14B-Instruct (4-bit nf4)</option>
+                <option value="unsloth/Meta-Llama-3.1-8B-Instruct-bnb-4bit">Llama-3.1-8B-Instruct (4-bit nf4)</option>
+                <option value="tiiuae/falcon-11B">Falcon-11B (4-bit nf4)</option>
+                <option value="facebook/opt-6.7b">OPT-6.7B (4-bit nf4)</option>
+              </select>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block font-medium mb-1">LoRA Rank (r)</label>
+                <select id="ft-rank" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                  <option value="8">r = 8</option>
+                  <option value="16" selected>r = 16 (Recommended)</option>
+                  <option value="32">r = 32</option>
+                  <option value="64">r = 64</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-medium mb-1">LoRA Alpha (α)</label>
+                <select id="ft-alpha" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                  <option value="16">α = 16</option>
+                  <option value="32" selected>α = 32</option>
+                  <option value="64">α = 64</option>
+                </select>
+              </div>
+            </div>
+            <div>
+              <label class="block font-medium mb-1">Context Window Length</label>
+              <select id="ft-seq" class="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800">
+                <option value="16384">16,384 tokens</option>
+                <option value="32768" selected>32,768 tokens (Full Binder)</option>
+                <option value="65536">65,536 tokens (100-Page Policy)</option>
+                <option value="131072">131,072 tokens (Master Program)</option>
+              </select>
+            </div>
+            <button onclick="runFinetuneSim()" class="w-full py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-semibold shadow-sm transition-all">
+              Compute Unsloth QLoRA Telemetry
+            </button>
+          </div>
+        </div>
+
+        <!-- Unsloth Telemetry Output -->
+        <div class="lg:col-span-2 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <div>
+              <h3 class="text-sm font-semibold">Unsloth QLoRA Memory &amp; Perplexity Telemetry</h3>
+              <p class="text-xs text-slate-500 dark:text-slate-400">Custom Triton kernels + 4-bit NormalFloat (nf4) double quantization</p>
+            </div>
+            <span id="ft-Savings-Badge" class="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300"></span>
+          </div>
+          <div id="ft-metrics-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3"></div>
+          <div id="needle-comparison" class="p-4 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 text-xs space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- Long-Context Architecture Comparison Table -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm">
+        <h3 class="text-sm font-semibold">Long-Document Transformer Architecture Benchmark (100-Page Commercial Policy Jackets)</h3>
+        <p class="text-xs text-slate-500 dark:text-slate-400 mb-4">Comparing RoPE YaRN (Qwen2.5 / Llama-Long), Block-Sparse Attention (BigBird), and kNN External Memory (Memorizing Transformers)</p>
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-slate-200 dark:border-slate-800 text-[11px] uppercase text-slate-500 bg-slate-50 dark:bg-slate-800/40">
+                <th class="py-2.5 px-3">Architecture</th>
+                <th class="py-2.5 px-3">Attention Mechanism</th>
+                <th class="py-2.5 px-3">Complexity</th>
+                <th class="py-2.5 px-3">64k KV VRAM</th>
+                <th class="py-2.5 px-3">Needle Recall</th>
+                <th class="py-2.5 px-3">Endorsement Accuracy</th>
+              </tr>
+            </thead>
+            <tbody id="long-context-tbody" class="divide-y divide-slate-200 dark:divide-slate-800"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: AZURE MLOPS, AKS/AML & QUALITY GATES -->
+    <section id="tab-mlops" class="hidden space-y-6">
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h2 class="text-sm font-semibold">MLflow Model Performance, Drift Monitor &amp; Automated Azure ML Retraining Gate</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Enforces INV-05: Extraction F1 ≥ 0.90, Perplexity ≤ 6.50, and Population Stability Index (PSI) ≤ 0.20</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="runMlopsEval(false)" class="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold">
+              Verify Healthy Production Model
+            </button>
+            <button onclick="runMlopsEval(true)" class="px-3.5 py-2 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-xs font-semibold">
+              Simulate Surplus-Lines Drift (Trigger AML Retrain)
+            </button>
+          </div>
+        </div>
+
+        <div id="mlops-cards" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3"></div>
+        <div id="mlops-banner" class="p-4 rounded-xl border text-xs"></div>
+      </div>
+
+      <!-- 4-Gate Verification Status -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
+        <h3 class="text-sm font-semibold">4-Gate Automated Evaluation &amp; Regression Suite</h3>
+        <div id="eval-gates-list" class="grid grid-cols-1 md:grid-cols-2 gap-3"></div>
+      </div>
+
+      <!-- Progressive Disclosure: Cloud & Distributed Training Manifests -->
+      <details class="group bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-xl overflow-hidden shadow-sm">
+        <summary class="px-5 py-3.5 cursor-pointer flex items-center justify-between text-xs font-semibold text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800/60">
+          <span>▶ Inspect Azure Machine Learning (AML v2), AKS Ray/vLLM &amp; DeepSpeed ZeRO-3 Deployment Topology</span>
+          <span class="text-slate-400 group-open:rotate-90 transition-transform">›</span>
+        </summary>
+        <div class="p-5 border-t border-slate-200 dark:border-slate-800 text-xs space-y-2 text-slate-600 dark:text-slate-300 font-mono">
+          <p>• Azure ML Pipeline: <code>deploy/aml/aml_finetune_pipeline.yml</code> (Standard_NC24ads_A100_v4, Azure Blob datastore, MLflow tracking)</p>
+          <p>• AKS Inference Cluster: <code>deploy/aks/k8s-vllm-ray-deployment.yaml</code> (Ray Serve + vLLM multi-LoRA serving + GPU HPA)</p>
+          <p>• Distributed Training: <code>deploy/deepspeed/ds_config_zero3.json</code> (DeepSpeed ZeRO-3 + CPU optimizer offload for Azure Databricks)</p>
+          <p>• MLOps CI/CD Retraining: <code>azure-pipelines.yml</code> (Automated 4-Gate verification &amp; ACR image promotion)</p>
+        </div>
+      </details>
+    </section>
+  </main>
+
+  <script>
+    // Theme Persistence
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme === 'dark') {
+        root.classList.add('dark');
+        document.getElementById('theme-icon').textContent = '☀️';
+        document.getElementById('theme-label').textContent = 'Light';
+      } else {
+        root.classList.remove('dark');
+        document.getElementById('theme-icon').textContent = '🌙';
+        document.getElementById('theme-label').textContent = 'Dark';
+      }
+      localStorage.setItem('theme', theme);
+    }
+
+    function toggleTheme() {
+      const current = localStorage.getItem('theme') || 'light';
+      applyTheme(current === 'dark' ? 'light' : 'dark');
+    }
+
+    applyTheme(localStorage.getItem('theme') || 'light');
+
+    // Tab Switching
+    function switchTab(tab) {
+      ['audit', 'rag', 'finetune', 'mlops'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('tab-btn-' + t);
+        if (t === tab) {
+          btn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-sm';
+        } else {
+          btn.className = 'tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all text-slate-600 dark:text-slate-300 hover:text-slate-900';
+        }
+      });
+    }
+
+    function fmtUSD(val) {
+      return '$' + Number(val).toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
+
+    async function loadReconciliation() {
+      const res = await fetch('/api/v1/reconcile');
+      const data = await res.json();
+      const rec = data.reconciliation;
+
+      document.getElementById('exec-summary').textContent = rec.executive_summary;
+      document.getElementById('kpi-tiv').textContent = fmtUSD(data.visualization_kpis.total_insured_value_usd);
+      document.getElementById('kpi-gap').textContent = fmtUSD(data.visualization_kpis.uninsured_exposure_gap_usd);
+      document.getElementById('kpi-alignment').textContent = data.visualization_kpis.binder_alignment_pct + '%';
+
+      const tbody = document.getElementById('discrepancy-tbody');
+      tbody.innerHTML = rec.discrepancies.map(d => {
+        const badge = d.severity === 'CRITICAL'
+          ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 border-rose-300'
+          : d.severity === 'HIGH'
+          ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border-amber-300'
+          : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300 border-sky-300';
+        return `
+          <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition-colors">
+            <td class="py-3.5 px-4"><span class="px-2 py-0.5 rounded border text-[10px] font-bold ${badge}">${d.severity}</span></td>
+            <td class="py-3.5 px-4 font-semibold">${d.coverage_name}<div class="text-[11px] font-normal text-slate-400">${d.category}</div></td>
+            <td class="py-3.5 px-4 text-emerald-700 dark:text-emerald-400 font-medium">${d.binder_value}</td>
+            <td class="py-3.5 px-4 text-rose-600 dark:text-rose-400 font-semibold">${d.policy_value}</td>
+            <td class="py-3.5 px-4 font-bold">${fmtUSD(d.financial_exposure_delta_usd)}</td>
+            <td class="py-3.5 px-4">
+              <div class="font-medium text-slate-800 dark:text-slate-200">${d.policy_citation}</div>
+              <div class="text-slate-500 dark:text-slate-400 mt-0.5">${d.remediation_action}</div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // SOV Cards
+      const sovContainer = document.getElementById('sov-cards');
+      sovContainer.innerHTML = data.policy.sov_locations.map(loc => `
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-indigo-600 dark:text-indigo-400">${loc.loc_id}</span>
+              <span class="text-xs font-semibold">${loc.address}</span>
+            </div>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">${loc.occupancy} • ${loc.construction_class} • <span class="font-semibold text-amber-600 dark:text-amber-400">${loc.flood_zone}</span></p>
+          </div>
+          <div class="text-right">
+            <div class="text-sm font-bold">${fmtUSD(loc.total_insured_value_usd)} TIV</div>
+            <div class="text-[11px] text-slate-500">Bldg ${fmtUSD(loc.building_value_usd)} | BI ${fmtUSD(loc.business_income_usd)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      // Coverage Bars
+      const covBars = document.getElementById('coverage-bars');
+      covBars.innerHTML = data.binder.coverages.map((bCov, idx) => {
+        const pCov = data.policy.coverages[idx];
+        const pct = bCov.limit_usd > 0 ? Math.round((pCov.limit_usd / bCov.limit_usd) * 100) : 0;
+        const barColor = pct === 100 ? 'bg-emerald-500' : pct > 0 ? 'bg-amber-500' : 'bg-rose-600';
+        return `
+          <div class="space-y-1 text-xs">
+            <div class="flex justify-between font-medium">
+              <span>${bCov.coverage_name}</span>
+              <span>Binder: ${fmtUSD(bCov.limit_usd)} → Policy: <strong class="${pct < 100 ? 'text-rose-600 dark:text-rose-400' : 'text-emerald-600'}">${pCov.is_excluded ? 'EXCLUDED ($0)' : fmtUSD(pCov.limit_usd)}</strong></span>
+            </div>
+            <div class="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+              <div class="h-full ${barColor}" style="width: ${Math.max(pct, 4)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      // LangSmith Spans
+      const spansContainer = document.getElementById('langsmith-spans');
+      spansContainer.innerHTML = data.langsmith_traces.map(s => `
+        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-600 dark:text-indigo-400">${s.node_name}</span>
+            <span class="px-1.5 py-0.5 rounded bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 text-[10px]">${s.latency_ms}ms</span>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1">Type: ${s.run_type} • Tokens: ${s.prompt_tokens + s.completion_tokens}</p>
+        </div>
+      `).join('');
+    }
+
+    async function runRagSearch() {
+      const query = document.getElementById('rag-query').value;
+      const backend = document.getElementById('rag-backend').value;
+      const res = await fetch('/api/v1/rag/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query, backend, top_k: 4 })
+      });
+      const data = await res.json();
+      document.getElementById('rag-expanded-query').textContent = data.expanded_query;
+      const container = document.getElementById('rag-results');
+      container.innerHTML = data.results.map(r => `
+        <div class="p-4 rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-indigo-600 dark:text-indigo-400">${r.section_title}</span>
+            <span class="px-2 py-0.5 rounded bg-slate-200 dark:bg-slate-700 font-mono text-[10px]">Page ${r.page_number}</span>
+          </div>
+          <p class="text-slate-700 dark:text-slate-300 leading-relaxed">${r.content}</p>
+          <div class="flex flex-wrap gap-2 pt-1 text-[11px] text-slate-500">
+            <span>Cross-Encoder: <strong>${r.cross_encoder_rerank_score}</strong></span>
+            <span>• RRF Score: <strong>${r.rrf_fused_score}</strong></span>
+            <span>• BM25: <strong>${r.sparse_bm25_score}</strong></span>
+            <span>• Backend: <strong>${r.backend_used}</strong></span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function runFinetuneSim() {
+      const base_model = document.getElementById('ft-model').value;
+      const lora_r = parseInt(document.getElementById('ft-rank').value, 10);
+      const lora_alpha = parseInt(document.getElementById('ft-alpha').value, 10);
+      const max_seq_length = parseInt(document.getElementById('ft-seq').value, 10);
+
+      const res = await fetch('/api/v1/finetuning/simulate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ base_model, lora_r, lora_alpha, max_seq_length })
+      });
+      const data = await res.json();
+      const s = data.qlora_summary;
+
+      document.getElementById('ft-Savings-Badge').textContent = `${s.vram_savings_pct}% VRAM Saved via Unsloth QLoRA`;
+      document.getElementById('ft-metrics-grid').innerHTML = `
+        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">FP16 Baseline → Unsloth 4-Bit VRAM</div>
+          <div class="text-base font-bold mt-0.5">${s.standard_fp16_vram_gb} GB → <span class="text-emerald-600 dark:text-emerald-400">${s.unsloth_qlora_vram_gb} GB</span></div>
+        </div>
+        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Trainable LoRA Parameters</div>
+          <div class="text-base font-bold mt-0.5">${s.trainable_lora_params_millions}M (${s.trainable_percentage}%)</div>
+        </div>
+        <div class="p-3 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Domain Perplexity (PPL)</div>
+          <div class="text-base font-bold mt-0.5">${s.baseline_perplexity} → <span class="text-indigo-600 dark:text-indigo-400">${s.finetuned_perplexity}</span></div>
+        </div>
+      `;
+
+      const n = data.needle_in_haystack_comparison;
+      document.getElementById('needle-comparison').innerHTML = `
+        <div class="font-semibold text-slate-900 dark:text-white">100-Page Policy Needle-in-a-Haystack Benchmark (Page 3 Declarations vs. Page 87 Endorsement Override):</div>
+        <div class="text-rose-600 dark:text-rose-400">✗ Naive 512-Token Chunked RAG: Extracted $${n.naive_rag.extracted_flood_limit_usd.toLocaleString()} (Missed Page 87 Endorsement Override)</div>
+        <div class="text-emerald-600 dark:text-emerald-400">✓ Long-Context + Section-Aware Hierarchy: Extracted $${n.hierarchical_long_context.extracted_flood_limit_usd.toLocaleString()} Sublimit &amp; $250k SIR (100% Exact Override Resolution)</div>
+      `;
+
+      document.getElementById('long-context-tbody').innerHTML = data.long_context_benchmarks.map(b => `
+        <tr>
+          <td class="py-2.5 px-3 font-semibold">${b.architecture_name}</td>
+          <td class="py-2.5 px-3">${b.attention_mechanism}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px]">${b.theoretical_complexity}</td>
+          <td class="py-2.5 px-3 font-semibold">${b.kv_cache_vram_gb_at_64k} GB</td>
+          <td class="py-2.5 px-3 text-emerald-600 font-bold">${b.needle_in_haystack_recall_pct}%</td>
+          <td class="py-2.5 px-3 font-bold">${b.cross_section_endorsement_accuracy_pct}%</td>
+        </tr>
+      `).join('');
+    }
+
+    async function runMlopsEval(simulate_degradation) {
+      const res = await fetch('/api/v1/mlops/evaluate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ simulate_degradation })
+      });
+      const m = await res.json();
+
+      document.getElementById('mlops-cards').innerHTML = `
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Extraction F1-Score</div>
+          <div class="text-xl font-bold mt-0.5 ${m.f1_score >= 0.9 ? 'text-emerald-600' : 'text-rose-600'}">${m.f1_score}</div>
+        </div>
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Model Perplexity (PPL)</div>
+          <div class="text-xl font-bold mt-0.5 ${m.perplexity <= 6.5 ? 'text-emerald-600' : 'text-rose-600'}">${m.perplexity}</div>
+        </div>
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Input PSI Drift</div>
+          <div class="text-xl font-bold mt-0.5 ${m.input_psi_drift <= 0.2 ? 'text-emerald-600' : 'text-rose-600'}">${m.input_psi_drift}</div>
+        </div>
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Inference TTFT / TPOT</div>
+          <div class="text-xl font-bold mt-0.5">${m.ttft_ms}ms / ${m.tpot_ms}ms</div>
+        </div>
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800">
+          <div class="text-[11px] text-slate-500">Azure ML Auto-Retrain</div>
+          <div class="text-sm font-bold mt-1 ${m.retraining_triggered ? 'text-rose-600' : 'text-emerald-600'}">${m.retraining_triggered ? 'TRIGGERED (' + m.aml_pipeline_job_id + ')' : 'STANDBY (Healthy)'}</div>
+        </div>
+      `;
+
+      const banner = document.getElementById('mlops-banner');
+      if (m.retraining_triggered) {
+        banner.className = 'p-4 rounded-xl border border-rose-300 bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-200 text-xs font-medium';
+      } else {
+        banner.className = 'p-4 rounded-xl border border-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-200 text-xs font-medium';
+      }
+      banner.textContent = m.retraining_reason;
+    }
+
+    async function loadEvalGates() {
+      const res = await fetch('/api/v1/evals/run');
+      const data = await res.json();
+      document.getElementById('eval-gates-list').innerHTML = data.gates.map(g => `
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 flex items-center justify-between text-xs">
+          <span class="font-medium">${g.gate}</span>
+          <span class="px-2 py-0.5 rounded font-bold ${g.passed ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' : 'bg-rose-100 text-rose-800'}">${g.passed ? 'PASS' : 'FAIL'}</span>
+        </div>
+      `).join('');
+    }
+
+    // Initialize all views
+    loadReconciliation();
+    runRagSearch();
+    runFinetuneSim();
+    runMlopsEval(false);
+    loadEvalGates();
+  </script>
+</body>
+</html>

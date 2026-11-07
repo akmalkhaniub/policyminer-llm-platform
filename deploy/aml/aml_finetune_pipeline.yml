@@ -1,0 +1,37 @@
+$schema: https://azuremlschemas.azureedge.net/latest/pipelineJob.schema.json
+type: pipeline
+display_name: policyminer-unsloth-qlora-insurance-finetune
+experiment_name: lineslip-insurance-policy-extraction
+description: Distributed Unsloth 4-bit QLoRA fine-tuning of Qwen2.5-14B / Llama-3.1-8B on Commercial P&C Binders, Policies & SOVs
+
+settings:
+  default_datastore: azureml:lineslip_blob_policy_store
+  default_compute: azureml:gpu-a100-cluster
+
+inputs:
+  sft_dataset_uri:
+    type: uri_folder
+    path: azureml://datastores/lineslip_blob_policy_store/paths/datasets/commercial-pc-sft-v2/
+  lora_rank: 16
+  lora_alpha: 32
+  max_seq_length: 32768
+
+outputs:
+  qlora_adapter_dir:
+    type: uri_folder
+    mode: rw_mount
+
+jobs:
+  unsloth_qlora_train:
+    type: command
+    code: ../../
+    command: >-
+      bash scripts/train_qlora_unsloth.sh
+      --lora-r ${{inputs.lora_rank}}
+      --lora-alpha ${{inputs.lora_alpha}}
+      --max-seq-len ${{inputs.max_seq_length}}
+    environment: azureml:unsloth-cuda124-py312:1
+    compute: azureml:gpu-a100-cluster
+    resources:
+      instance_count: 1
+      instance_type: Standard_NC24ads_A100_v4

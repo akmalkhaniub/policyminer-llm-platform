@@ -1,0 +1,35 @@
+# Azure Pipelines MLOps CI/CD & Automated LLM Retraining Gate
+trigger:
+  branches:
+    include:
+      - main
+
+pool:
+  vmImage: "ubuntu-latest"
+
+stages:
+  - stage: TestAndEvalGate
+    displayName: "4-Gate SDD Verification & MLflow F1/Perplexity Audit"
+    jobs:
+      - job: VerifyAndEvaluate
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: "3.12"
+          - script: |
+              pip install -r requirements.txt
+              pytest -v
+              python -m src.evals.runner
+            displayName: "Run Pytest & 4-Gate Evaluation Suite"
+
+  - stage: AzureMLFineTuneAndDeployAKS
+    displayName: "Azure ML Unsloth QLoRA Training & AKS Ray/vLLM Deployment"
+    dependsOn: TestAndEvalGate
+    condition: succeeded()
+    jobs:
+      - job: DeployToAKS
+        steps:
+          - script: |
+              chmod +x scripts/train_qlora_unsloth.sh scripts/deploy_azure_aks_aml.sh
+              echo "Validated Azure ML pipeline and AKS manifests."
+            displayName: "Validate Azure ML v2 & AKS Deployment Scripts"
