@@ -120,14 +120,24 @@
       <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
-            <h2 class="text-sm font-semibold">Live Commercial Policy / Endorsement Rider Parser</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Paste or edit a carrier endorsement clause below to dynamically re-evaluate the uninsured exposure delta</p>
+            <h2 class="text-sm font-semibold">Live Commercial Policy Upload &amp; ShieldGuard Sanitizer</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Upload a policy file (.pdf, .txt, .json) or edit endorsement text below — PII &amp; XPIA injections are automatically redacted</p>
           </div>
-          <button onclick="runCustomPolicyAudit()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm">
-            Parse &amp; Re-Audit Policy Text
-          </button>
+          <div class="flex flex-wrap items-center gap-2">
+            <label class="cursor-pointer px-3.5 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 hover:border-indigo-500 text-xs font-semibold">
+              Upload Policy File
+              <input id="policy-file-input" type="file" accept=".txt,.pdf,.json,.csv" onchange="uploadPolicyFile()" class="hidden" />
+            </label>
+            <button onclick="runCustomPolicyAudit()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold shadow-sm">
+              Parse &amp; Re-Audit Text
+            </button>
+            <a href="/api/v1/export/reconciliation-csv" class="px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-sm">
+              Export CSV Report
+            </a>
+          </div>
         </div>
         <textarea id="custom-policy-text" rows="2" class="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-xs font-mono">ENDORSEMENT CP-14-20: Cyber Extortion Sublimit is amended to $2,500,000 subject to a $250,000 Self-Insured Retention (SIR). ENDORSEMENT FL-10: Restore Flood Zone A coverage in full.</textarea>
+        <div id="shieldguard-status" class="hidden p-2.5 rounded-lg bg-slate-50 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700 text-xs"></div>
       </div>
 
       <!-- Discrepancy Table -->
@@ -172,6 +182,23 @@
           <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5 mb-4">Visualizing silent sublimit erosion and endorsement exclusions</p>
           <div id="coverage-bars" class="space-y-4"></div>
         </div>
+      </div>
+
+      <!-- Commercial Insurance Program Tower & Coinsurance Penalty Simulator -->
+      <div class="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-semibold">Commercial Insurance Program Tower &amp; Coinsurance Penalty Simulator</h3>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Detects Primary-to-Excess attachment drop-down gaps and calculates deterministic coinsurance penalties</p>
+          </div>
+          <div class="flex items-center gap-2 text-xs">
+            <label class="font-medium">Simulated Loss ($):</label>
+            <input id="tower-loss" type="number" value="10000000" step="1000000" class="w-28 px-2.5 py-1.5 rounded border border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-800" />
+            <button onclick="loadTowerAnalysis()" class="px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-semibold">Simulate</button>
+          </div>
+        </div>
+        <div id="tower-layers" class="grid grid-cols-1 md:grid-cols-3 gap-3"></div>
+        <div id="tower-gaps-and-coinsurance" class="grid grid-cols-1 lg:grid-cols-2 gap-4"></div>
       </div>
 
       <!-- Progressive Disclosure: LangSmith Execution Trace -->
@@ -509,6 +536,16 @@
       `).join('');
     }
 
+    function renderShieldGuardBanner(sg) {
+      if (!sg) return;
+      const el = document.getElementById('shieldguard-status');
+      el.classList.remove('hidden');
+      const injBadge = sg.prompt_injection_detected
+        ? `<span class="text-rose-600 font-bold">⚠ XPIA Injection Blocked (${sg.detected_injection_patterns.join(', ')})</span>`
+        : `<span class="text-emerald-600 font-semibold">✓ Zero Prompt Injections</span>`;
+      el.innerHTML = `<strong>ShieldGuard Scan:</strong> ${injBadge} • PII Redacted: <strong>${sg.total_pii_redacted}</strong>`;
+    }
+
     async function runCustomPolicyAudit() {
       const raw_policy_text = document.getElementById('custom-policy-text').value;
       const res = await fetch('/api/v1/documents/upload-and-audit', {
@@ -519,6 +556,54 @@
       const data = await res.json();
       renderReconciliationTable(data.reconciliation);
       renderStitchedSov(data.stitched_multipage_sov);
+      renderShieldGuardBanner(data.security_guard);
+    }
+
+    async function uploadPolicyFile() {
+      const input = document.getElementById('policy-file-input');
+      if (!input.files || !input.files[0]) return;
+      const formData = new FormData();
+      formData.append('file', input.files[0]);
+      const res = await fetch('/api/v1/documents/upload-file', { method: 'POST', body: formData });
+      const data = await res.json();
+      renderReconciliationTable(data.reconciliation);
+      renderStitchedSov(data.stitched_multipage_sov);
+      renderShieldGuardBanner(data.security_guard);
+    }
+
+    async function loadTowerAnalysis() {
+      const simulated_loss_usd = parseFloat(document.getElementById('tower-loss').value || '10000000');
+      const res = await fetch('/api/v1/tower/analyze', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ simulated_loss_usd, coinsurance_pct: 90.0, carried_limit_usd: 35000000.0 })
+      });
+      const t = await res.json();
+      document.getElementById('tower-layers').innerHTML = t.layers.map(l => `
+        <div class="p-3.5 rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-800/40 text-xs space-y-1">
+          <div class="font-bold text-indigo-600 dark:text-indigo-400">${l.layer_name}</div>
+          <div class="text-slate-600 dark:text-slate-300">${l.carrier} (${l.policy_number})</div>
+          <div class="font-semibold">Limit: ${fmtUSD(l.limit_usd)} xs ${fmtUSD(l.attachment_point_usd)}</div>
+          <div class="text-[11px] text-slate-500">Premium: ${fmtUSD(l.annual_premium_usd)}/yr</div>
+        </div>
+      `).join('');
+
+      const c = t.coinsurance_simulation;
+      const gapHtml = t.attachment_gaps.map(g => `
+        <div class="p-3.5 rounded-lg border border-rose-300 dark:border-rose-800 bg-rose-50/70 dark:bg-rose-950/30 text-xs space-y-1">
+          <div class="font-bold text-rose-600 dark:text-rose-400">⚠ ${g.coverage_line}: ${fmtUSD(g.uninsured_gap_usd)} Uninsured Gap</div>
+          <p class="text-slate-700 dark:text-slate-300">${g.explanation}</p>
+        </div>
+      `).join('');
+
+      document.getElementById('tower-gaps-and-coinsurance').innerHTML = `
+        <div class="space-y-2">${gapHtml}</div>
+        <div class="p-3.5 rounded-lg border border-amber-300 dark:border-amber-800 bg-amber-50/60 dark:bg-amber-950/30 text-xs space-y-1">
+          <div class="font-bold text-amber-700 dark:text-amber-300">Coinsurance Penalty Simulation (${c.coinsurance_pct}% on ${fmtUSD(c.reported_tiv_usd)} TIV)</div>
+          <div>Required Limit: <strong>${fmtUSD(c.required_limit_usd)}</strong> • Carried: <strong>${fmtUSD(c.carried_limit_usd)}</strong></div>
+          <div>Simulated Loss: <strong>${fmtUSD(c.simulated_loss_usd)}</strong> → Insurer Payout: <strong>${fmtUSD(c.insurer_payout_usd)}</strong> • <span class="text-rose-600 font-bold">Coinsurance Penalty: ${fmtUSD(c.coinsurance_penalty_usd)}</span></div>
+        </div>
+      `;
     }
 
     async function runRagSearch() {
@@ -696,6 +781,7 @@
     }
 
     loadReconciliation();
+    loadTowerAnalysis();
     runRagSearch();
     runFinetuneSim();
     loadFinOpsAndGpu();

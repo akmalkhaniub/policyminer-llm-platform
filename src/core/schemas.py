@@ -295,3 +295,63 @@ class MLflowEvaluationMetrics(BaseModel):
     retraining_triggered: bool
     retraining_reason: str
     aml_pipeline_job_id: Optional[str] = None
+
+
+class TowerLayer(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    layer_name: str
+    carrier: str
+    policy_number: str
+    attachment_point_usd: float = Field(..., ge=0.0)
+    limit_usd: float = Field(..., ge=0.0)
+    underlying_sublimit_usd: Optional[float] = Field(default=None, ge=0.0)
+    annual_premium_usd: float = Field(..., ge=0.0)
+
+
+class TowerAttachmentGap(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    gap_id: str
+    coverage_line: str
+    lower_layer_ceiling_usd: float
+    upper_layer_attachment_usd: float
+    uninsured_gap_usd: float
+    severity: DivergenceSeverity
+    explanation: str
+
+
+class CoinsuranceSimulationResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reported_tiv_usd: float
+    carried_limit_usd: float
+    coinsurance_pct: float
+    required_limit_usd: float
+    simulated_loss_usd: float
+    deductible_usd: float
+    insurer_payout_usd: float
+    coinsurance_penalty_usd: float
+    is_underinsured: bool
+
+
+class ProgramTowerAnalysis(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    program_name: str
+    total_tower_capacity_usd: float
+    total_tower_premium_usd: float
+    layers: List[TowerLayer]
+    attachment_gaps: List[TowerAttachmentGap]
+    coinsurance_simulation: CoinsuranceSimulationResult
+
+
+class SanitizedDocumentResult(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    sanitized_text: str
+    pii_entities_redacted: Dict[str, int]
+    total_pii_redacted: int
+    prompt_injection_detected: bool
+    detected_injection_patterns: List[str]
+    safe_for_llm_ingestion: bool

@@ -14,13 +14,18 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, Query
+from fastapi import FastAPI, File, HTTPException, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, PlainTextResponse
 from pydantic import BaseModel
 
 from src.agents.langsmith_workflow import LangSmithInsuranceMiningWorkflow
+from src.agents.tower_analyzer import (
+    analyze_insurance_program_tower,
+    export_reconciliation_csv,
+)
 from src.core.schemas import BaseLLMArchitecture, UnslothQLoRAConfig, VectorBackendType
+from src.core.security_guard import sanitize_insurance_document
 from src.evals.runner import run_all_evaluation_gates
 from src.finetuning.azure_finops_dispatcher import (
     compute_azure_finops_comparison,
@@ -88,12 +93,22 @@ class FinOpsRequest(BaseModel):
     avg_tokens_per_policy: int = 42000
 
 
+class TowerSimulationRequest(BaseModel):
+    simulated_loss_usd: float = 10_000_000.0
+    coinsurance_pct: float = 90.0
+    carried_limit_usd: float = 35_000_000.0
+
+
+class SanitizeDocumentRequest(BaseModel):
+    raw_text: str
+
+
 @app.get("/healthz")
 def healthz() -> dict:
     return {
         "status": "healthy",
         "service": "policyminer-llm-platform",
-        "version": "2.0.0",
+        "version": "3.0.0",
         "supported_vector_backends": [b.value for b in VectorBackendType],
         "supported_base_models": [m.value for m in BaseLLMArchitecture],
     }
@@ -113,7 +128,57 @@ def get_reconciliation_workspace(
 
 @app.post("/api/v1/documents/upload-and-audit")
 def upload_and_audit_policy(req: CustomPolicyAuditRequest) -> dict:
-    return parse_and_audit_custom_policy_text(req.raw_policy_text)
+    sanitized = sanitize_insurance_document(req.raw_policy_text)
+    audit = parse_and_audit_custom_policy_text(sanitized.sanitized_text)
+    audit["security_guard"] = sanitized.model_dump()
+    return audit
+
+
+@app.post("/api/v1/documents/upload-file")
+async def upload_policy_file(file: UploadFile = File(...)) -> dict:
+    content_bytes = await file.read()
+    filename = file.filename or "uploaded_policy.txt"
+    if filename.lower().endswith(".pdf"):
+        try:
+            import io
+            import pypdf
+
+            reader = pypdf.PdfReader(io.BytesIO(content_bytes))
+            raw_text = "\n".join(p.extract_text() or "" for p in reader.pages)
+        except Exception as exc:
+            raise HTTPException(status_code=400, detail=f"PDF parsing failed: {exc}")
+    else:
+        raw_text = content_bytes.decode("utf-8", errors="ignore")
+
+    sanitized = sanitize_insurance_document(raw_text)
+    audit = parse_and_audit_custom_policy_text(sanitized.sanitized_text)
+    audit["filename"] = filename
+    audit["security_guard"] = sanitized.model_dump()
+    return audit
+
+
+@app.post("/api/v1/security/sanitize")
+def sanitize_document_endpoint(req: SanitizeDocumentRequest) -> dict:
+    return sanitize_insurance_document(req.raw_text).model_dump()
+
+
+@app.post("/api/v1/tower/analyze")
+def analyze_tower_endpoint(req: TowerSimulationRequest) -> dict:
+    return analyze_insurance_program_tower(
+        simulated_loss_usd=req.simulated_loss_usd,
+        coinsurance_pct=req.coinsurance_pct,
+        carried_limit_usd=req.carried_limit_usd,
+    ).model_dump()
+
+
+@app.get("/api/v1/export/reconciliation-csv", response_class=PlainTextResponse)
+def export_reconciliation_csv_endpoint() -> PlainTextResponse:
+    csv_body = export_reconciliation_csv()
+    return PlainTextResponse(
+        content=csv_body,
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=lineslip_reconciliation_report.csv"},
+    )
 
 
 @app.post("/api/v1/rag/search")

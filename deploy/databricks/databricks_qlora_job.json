@@ -1,0 +1,28 @@
+{
+  "name": "policyminer-databricks-deepspeed-qlora",
+  "email_notifications": {
+    "on_failure": ["mlops-alerts@lineslip-demo.io"]
+  },
+  "tasks": [
+    {
+      "task_key": "distributed_unsloth_qlora_train",
+      "spark_python_task": {
+        "python_file": "dbfs:/policyminer/scripts/train_qlora_unsloth.sh",
+        "parameters": ["--lora-r", "16", "--lora-alpha", "32", "--deepspeed", "deploy/deepspeed/ds_config_zero3.json"]
+      },
+      "new_cluster": {
+        "spark_version": "15.4.x-gpu-ml-scala2.12",
+        "node_type_id": "Standard_NC24ads_A100_v4",
+        "num_workers": 2,
+        "azure_attributes": {
+          "availability": "ON_DEMAND_AZURE",
+          "first_on_demand": 1
+        },
+        "spark_env_vars": {
+          "MLFLOW_TRACKING_URI": "databricks",
+          "PYTORCH_CUDA_ALLOC_CONF": "expandable_segments:True"
+        }
+      }
+    }
+  ]
+}
